@@ -1,5 +1,7 @@
 pub mod utils;
 
+mod gol;
+
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -16,5 +18,6 @@ extern {
 #[wasm_bindgen]
 pub fn greet(name: &str) {
     let message = format!("Hello {}", name);
+    let universe = gol::build_universe(5);
     alert(&message);
 }
