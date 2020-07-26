@@ -68,13 +68,13 @@ impl Universe {
         ]
     }
 
-    fn get_amount_of_live_neighbours(&self, index: usize) -> u8 {
-        let (x, y) = self.deindex(index);
+    fn get_amount_of_live_neighbours(&self, x: usize, y: usize) -> u8 {
         self.get_neighbour_indices(x,y).iter().cloned().map(|(x, y)| { self.get(x, y) as u8 }).sum()
     }
 
     fn index_has_to_be_flipped(&self, index: usize) -> bool {
-        let live_neighbours = self.get_amount_of_live_neighbours(index);
+        let (x, y) = self.deindex(index);
+        let live_neighbours = self.get_amount_of_live_neighbours(x, y);
         match (self.cells[index], live_neighbours) {
             (CellState::ALIVE, 0) => true,
             (CellState::ALIVE, 1) => true,
@@ -102,15 +102,15 @@ pub fn build_universe(edge_size: usize) -> Universe {
 #[test]
 fn get_amount_of_live_neighbours_works() {
     let mut universe = build_universe(4);
-    assert_eq!(universe.get_amount_of_live_neighbours(0), 0);
+    assert_eq!(universe.get_amount_of_live_neighbours(0,0), 0);
     universe.flip(0, 1);
-    assert_eq!(universe.get_amount_of_live_neighbours(0), 1);
+    assert_eq!(universe.get_amount_of_live_neighbours(0,0), 1);
     universe.flip(0, 3);
-    assert_eq!(universe.get_amount_of_live_neighbours(0), 2);
+    assert_eq!(universe.get_amount_of_live_neighbours(0,0), 2);
     universe.flip(1, 3);
-    assert_eq!(universe.get_amount_of_live_neighbours(0), 3);
+    assert_eq!(universe.get_amount_of_live_neighbours(0,0), 3);
     universe.flip(3, 3);
-    assert_eq!(universe.get_amount_of_live_neighbours(0), 4);
+    assert_eq!(universe.get_amount_of_live_neighbours(0,0), 4);
 }
 
 #[test]
