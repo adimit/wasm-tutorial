@@ -18,6 +18,6 @@ extern {
 #[wasm_bindgen]
 pub fn greet(name: &str) {
     let message = format!("Hello {}", name);
-    let universe = gol::build_universe(5);
+    let universe = gol::Universe::build_universe(5);
     alert(&message);
 }

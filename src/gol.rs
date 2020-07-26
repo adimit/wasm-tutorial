@@ -95,16 +95,17 @@ impl Universe {
             self.flip(x,y);
         }
     }
-}
 
-pub fn build_universe(edge_size: usize) -> Universe {
-    let cells: Vec<CellState> = vec![CellState::DEAD; edge_size * edge_size];
-    Universe { edge_size, cells }
+
+    pub fn build_universe(edge_size: usize) -> Universe {
+        let cells: Vec<CellState> = vec![CellState::DEAD; edge_size * edge_size];
+        Universe { edge_size, cells }
+    }
 }
 
 #[test]
 fn get_amount_of_live_neighbours_works() {
-    let mut universe = build_universe(4);
+    let mut universe = Universe::build_universe(4);
     assert_eq!(universe.get_amount_of_live_neighbours(0,0), 0);
     universe.flip(0, 1);
     assert_eq!(universe.get_amount_of_live_neighbours(0,0), 1);
@@ -118,7 +119,7 @@ fn get_amount_of_live_neighbours_works() {
 
 #[test]
 fn get_neighbour_indices_wraps_correctly() {
-    let universe = build_universe(5);
+    let universe = Universe::build_universe(5);
     assert_eq!(universe.get_neighbour_indices(0,0),
                vec![(4, 4), (0, 4), (1, 4), (4, 0), (1, 0), (4, 1), (0, 1), (1, 1)]
     );
@@ -129,27 +130,27 @@ fn get_neighbour_indices_wraps_correctly() {
 
 #[test]
 fn build_universe_has_correct_size() {
-    let universe = build_universe(5);
+    let universe = Universe::build_universe(5);
     assert_eq!(universe.cells.len(), 25);
 }
 
 #[test]
 fn get_with_large_index_wraps() {
-    let mut universe = build_universe(4);
+    let mut universe = Universe::build_universe(4);
     universe.flip(4, 4);
     assert_eq!(universe.get(0, 0), CellState::ALIVE);
 }
 
 #[test]
 fn universe_can_flip_cell() {
-    let mut universe = build_universe(2);
+    let mut universe = Universe::build_universe(2);
     universe.flip(0, 1);
     assert_eq!(universe.get(0, 1), CellState::ALIVE);
 }
 
 #[test]
 fn lone_cell_dies_in_one_tick() {
-    let mut universe = build_universe(3);
+    let mut universe = Universe::build_universe(3);
     universe.flip(1,1);
     universe.tick();
     assert_eq!(universe.get(1,1), CellState::DEAD);
@@ -157,7 +158,7 @@ fn lone_cell_dies_in_one_tick() {
 
 #[test]
 fn blocks_are_stable() {
-    let mut universe = build_universe(4);
+    let mut universe = Universe::build_universe(4);
     universe.flip(0,0);
     universe.flip(0,1);
     universe.flip(1,1);
@@ -177,7 +178,7 @@ fn blocks_are_stable() {
 
 #[test]
 fn blinkers_are_stable() {
-    let mut universe = build_universe(5);
+    let mut universe = Universe::build_universe(5);
 
     universe.flip(1,1);
     universe.flip(1,2);
