@@ -104,8 +104,8 @@ impl Universe {
 
     pub fn tick(&mut self) {
         let mut flip_indices: Vec<(usize, usize)> = Vec::new();
-        for x in 0..self.edge_size-1 {
-            for y in 0..self.edge_size-1 {
+        for x in 0..self.edge_size {
+            for y in 0..self.edge_size {
                 if self.index_has_to_be_flipped(x,y) {
                     flip_indices.push((x,y));
                 }
@@ -215,4 +215,26 @@ fn blinkers_are_stable() {
     assert_eq!(universe.get(1,1), CellState::ALIVE);
     assert_eq!(universe.get(1,2), CellState::ALIVE);
     assert_eq!(universe.get(1,3), CellState::ALIVE);
+}
+
+#[test]
+fn gliders_wrap() {
+    let mut universe = Universe::build_universe(5);
+
+    universe.flip(0,2);
+    universe.flip(1,2);
+    universe.flip(2,2);
+    universe.flip(2,1);
+    universe.flip(1,0);
+
+    (0..20).for_each(|x| {
+        universe.tick();
+        println!("{}{}", universe.to_string(), x);
+    });
+
+    assert_eq!(universe.get(0,2), CellState::ALIVE);
+    assert_eq!(universe.get(1,2), CellState::ALIVE);
+    assert_eq!(universe.get(2,2), CellState::ALIVE);
+    assert_eq!(universe.get(2,1), CellState::ALIVE);
+    assert_eq!(universe.get(1,0), CellState::ALIVE);
 }
