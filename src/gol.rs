@@ -32,12 +32,6 @@ impl Universe {
         (self.edge_size * (y % self.edge_size)) + (x % self.edge_size)
     }
 
-    fn deindex(&self, index: usize) -> (usize, usize) {
-        let x = index % self.edge_size;
-        let y = index / self.edge_size;
-        (x, y)
-    }
-
     fn flip(&mut self, x: usize, y: usize) {
         let index = self.index(x, y);
         self.flip_index(index);
@@ -86,11 +80,15 @@ impl Universe {
     }
 
     fn tick(&mut self) {
-        let flip_indices: Vec<usize> = (0..self.cells.len()).filter(|index| {
-            let (x, y) = self.deindex(*index);
-            self.index_has_to_be_flipped(x,y)
-        }).collect();
-        flip_indices.iter().for_each(|index| { self.flip_index(*index) });
+        let mut flip_indices: Vec<(usize, usize)> = Vec::new();
+        for x in (0..self.edge_size-1) {
+            for y in (0..self.edge_size-1) {
+                if self.index_has_to_be_flipped(x,y) {
+                    flip_indices.push((x,y));
+                }
+            }
+        }
+        flip_indices.iter().for_each(|(x,y)| { self.flip(*x,*y) });
     }
 }
 
