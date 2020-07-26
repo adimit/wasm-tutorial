@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[repr(u8)]
 #[derive(Clone, Debug, PartialEq, Copy, Eq)]
 pub enum CellState {
@@ -19,14 +21,18 @@ pub struct Universe {
     cells: Vec<CellState>
 }
 
-impl Universe {
-    fn print(&self) {
+impl fmt::Display for Universe {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (pos, cell) in self.cells.iter().enumerate() {
             let c = if *cell == CellState::ALIVE { "█" } else { "░" };
             let newline = if pos % self.edge_size == self.edge_size - 1 { "\n" } else { "" };
-            print!("{}{}", c, newline);
+            write!(f, "{}{}", c, newline)?;
         }
+        Ok(())
     }
+}
+
+impl Universe {
 
     fn index(&self, x: usize, y: usize) -> usize {
         (self.edge_size * (y % self.edge_size)) + (x % self.edge_size)
