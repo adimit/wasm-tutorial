@@ -53,10 +53,10 @@ impl Universe {
 
     fn get_neighbour_indices(&self, index: usize) -> Vec<(usize,usize)> {
         let (x, y) = self.deindex(index);
-        let row_above = if y == 0 { self.edge_size - 1 } else { y - 1 };
-        let row_below = if y == self.edge_size - 1 { 0 } else { y + 1 };
-        let column_to_the_left  = if x == 0 { self.edge_size - 1 } else { x - 1 };
-        let column_to_the_right = if x == self.edge_size - 1 { 0 } else { x + 1 };
+        let row_above = ((self.edge_size - 1) + y )% self.edge_size;
+        let row_below = (y + 1) % self.edge_size;
+        let column_to_the_left  = ((self.edge_size - 1) + x ) % self.edge_size;
+        let column_to_the_right = (x + 1) % self.edge_size;
         vec![
             (column_to_the_left, row_above),
             (x, row_above),
@@ -70,7 +70,7 @@ impl Universe {
     }
 
     fn get_amount_of_live_neighbours(&self, index: usize) -> u8 {
-        self.get_neighbour_indices(index).iter().map(|(x, y)| { self.get(*x, *y) as u8 }).sum()
+        self.get_neighbour_indices(index).iter().cloned().map(|(x, y)| { self.get(x, y) as u8 }).sum()
     }
 
     fn index_has_to_be_flipped(&self, index: usize) -> bool {
