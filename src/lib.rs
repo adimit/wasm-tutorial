@@ -11,13 +11,12 @@ use wasm_bindgen::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-extern {
-    fn alert(s: &str);
-}
+pub fn create_universe() -> gol::Universe {
+    let mut universe = gol::Universe::build_universe(5);
 
-#[wasm_bindgen]
-pub fn greet(name: &str) {
-    let message = format!("Hello {}", name);
-    let universe = gol::Universe::build_universe(5);
-    alert(&message);
+    universe.flip(1,1);
+    universe.flip(1,2);
+    universe.flip(1,3);
+
+    universe
 }

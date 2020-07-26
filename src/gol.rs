@@ -37,6 +37,10 @@ impl fmt::Display for Universe {
 
 #[wasm_bindgen]
 impl Universe {
+    pub fn render_as_string(&self) -> String {
+        self.to_string()
+    }
+
     fn index(&self, x: usize, y: usize) -> usize {
         (self.edge_size * (y % self.edge_size)) + (x % self.edge_size)
     }
