@@ -1,5 +1,7 @@
 use std::fmt;
+use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
 #[repr(u8)]
 #[derive(Clone, Debug, PartialEq, Copy, Eq)]
 pub enum CellState {
@@ -16,6 +18,7 @@ impl CellState {
     }
 }
 
+#[wasm_bindgen]
 pub struct Universe {
     edge_size: usize,
     cells: Vec<CellState>
@@ -32,12 +35,13 @@ impl fmt::Display for Universe {
     }
 }
 
+#[wasm_bindgen]
 impl Universe {
     fn index(&self, x: usize, y: usize) -> usize {
         (self.edge_size * (y % self.edge_size)) + (x % self.edge_size)
     }
 
-    fn flip(&mut self, x: usize, y: usize) {
+    pub fn flip(&mut self, x: usize, y: usize) {
         let index = self.index(x, y);
         self.flip_index(index);
     }
@@ -46,7 +50,7 @@ impl Universe {
         self.cells[index] = self.cells[index].flip();
     }
 
-    fn get(&self, x: usize, y: usize) -> CellState {
+    pub fn get(&self, x: usize, y: usize) -> CellState {
         self.cells[self.index(x, y)]
     }
 
@@ -82,7 +86,7 @@ impl Universe {
         }
     }
 
-    fn tick(&mut self) {
+    pub fn tick(&mut self) {
         let mut flip_indices: Vec<(usize, usize)> = Vec::new();
         for x in 0..self.edge_size-1 {
             for y in 0..self.edge_size-1 {
