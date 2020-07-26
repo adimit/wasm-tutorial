@@ -88,7 +88,9 @@ impl Universe {
                 }
             }
         }
-        flip_indices.iter().cloned().for_each(|(x,y)| { self.flip(x,y) });
+        for (x,y) in flip_indices {
+            self.flip(x,y);
+        }
     }
 }
 
