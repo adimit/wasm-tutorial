@@ -33,7 +33,6 @@ impl fmt::Display for Universe {
 }
 
 impl Universe {
-
     fn index(&self, x: usize, y: usize) -> usize {
         (self.edge_size * (y % self.edge_size)) + (x % self.edge_size)
     }
@@ -75,8 +74,6 @@ impl Universe {
     fn index_has_to_be_flipped(&self, x: usize, y: usize) -> bool {
         let live_neighbours = self.get_amount_of_live_neighbours(x, y);
         match (self.get(x,y), live_neighbours) {
-            (CellState::ALIVE, 0) => true,
-            (CellState::ALIVE, 1) => true,
             (CellState::ALIVE, 2) => false,
             (CellState::ALIVE, 3) => false,
             (CellState::ALIVE, _) => true,
