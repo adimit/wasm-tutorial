@@ -10,6 +10,7 @@ const universe = wasm.create_universe();
 const width = universe.width();
 const height = universe.height();
 const canvas = document.getElementById("game-of-life-canvas");
+const counter = document.getElementById("counter");
 canvas.height = (CELL_SIZE + 1) * height + 1;
 canvas.width = (CELL_SIZE + 1) * width + 1;
 
@@ -54,11 +55,15 @@ const drawCells = () => {
 
 drawGrid();
 drawCells();
+let iterations = 0;
+counter.innerText = iterations;
 
 const renderLoop = async () => {
   await sleep(100);
   drawCells();
   universe.tick();
+  counter.innerText = iterations++;
+
   requestAnimationFrame(renderLoop);
 };
 
