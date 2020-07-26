@@ -72,10 +72,9 @@ impl Universe {
         self.get_neighbour_indices(x,y).iter().cloned().map(|(x, y)| { self.get(x, y) as u8 }).sum()
     }
 
-    fn index_has_to_be_flipped(&self, index: usize) -> bool {
-        let (x, y) = self.deindex(index);
+    fn index_has_to_be_flipped(&self, x: usize, y: usize) -> bool {
         let live_neighbours = self.get_amount_of_live_neighbours(x, y);
-        match (self.cells[index], live_neighbours) {
+        match (self.get(x,y), live_neighbours) {
             (CellState::ALIVE, 0) => true,
             (CellState::ALIVE, 1) => true,
             (CellState::ALIVE, 2) => false,
@@ -88,7 +87,8 @@ impl Universe {
 
     fn tick(&mut self) {
         let flip_indices: Vec<usize> = (0..self.cells.len()).filter(|index| {
-            self.index_has_to_be_flipped(*index)
+            let (x, y) = self.deindex(*index);
+            self.index_has_to_be_flipped(x,y)
         }).collect();
         flip_indices.iter().for_each(|index| { self.flip_index(*index) });
     }
