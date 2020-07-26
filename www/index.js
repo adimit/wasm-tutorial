@@ -59,11 +59,11 @@ let iterations = 0;
 counter.innerText = iterations;
 
 const renderLoop = async () => {
-  await sleep(100);
   drawCells();
   universe.tick();
   counter.innerText = iterations++;
 
+  await sleep(500);
   requestAnimationFrame(renderLoop);
 };
 
