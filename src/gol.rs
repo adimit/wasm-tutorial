@@ -51,8 +51,7 @@ impl Universe {
         self.cells[self.index(x, y)]
     }
 
-    fn get_neighbour_indices(&self, index: usize) -> Vec<(usize,usize)> {
-        let (x, y) = self.deindex(index);
+    fn get_neighbour_indices(&self, x: usize, y: usize) -> Vec<(usize,usize)> {
         let row_above = ((self.edge_size - 1) + y )% self.edge_size;
         let row_below = (y + 1) % self.edge_size;
         let column_to_the_left  = ((self.edge_size - 1) + x ) % self.edge_size;
@@ -70,7 +69,8 @@ impl Universe {
     }
 
     fn get_amount_of_live_neighbours(&self, index: usize) -> u8 {
-        self.get_neighbour_indices(index).iter().cloned().map(|(x, y)| { self.get(x, y) as u8 }).sum()
+        let (x, y) = self.deindex(index);
+        self.get_neighbour_indices(x,y).iter().cloned().map(|(x, y)| { self.get(x, y) as u8 }).sum()
     }
 
     fn index_has_to_be_flipped(&self, index: usize) -> bool {
@@ -116,10 +116,10 @@ fn get_amount_of_live_neighbours_works() {
 #[test]
 fn get_neighbour_indices_wraps_correctly() {
     let universe = build_universe(5);
-    assert_eq!(universe.get_neighbour_indices(0),
+    assert_eq!(universe.get_neighbour_indices(0,0),
                vec![(4, 4), (0, 4), (1, 4), (4, 0), (1, 0), (4, 1), (0, 1), (1, 1)]
     );
-    assert_eq!(universe.get_neighbour_indices(24),
+    assert_eq!(universe.get_neighbour_indices(4,4),
                vec![(3, 3), (4, 3), (0, 3), (3, 4), (0, 4), (3, 0), (4, 0), (0, 0)]
     );
 }
