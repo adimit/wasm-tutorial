@@ -41,7 +41,19 @@ impl Universe {
         self.to_string()
     }
 
-    fn index(&self, x: usize, y: usize) -> usize {
+    pub fn width(&self) -> usize {
+        self.edge_size
+    }
+
+    pub fn height(&self) -> usize {
+        self.edge_size
+    }
+
+    pub fn cells(&self) -> *const CellState {
+        self.cells.as_ptr()
+    }
+
+    pub fn index(&self, x: usize, y: usize) -> usize {
         (self.edge_size * (y % self.edge_size)) + (x % self.edge_size)
     }
 
