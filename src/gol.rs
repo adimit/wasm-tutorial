@@ -81,14 +81,14 @@ impl Universe {
 
     fn tick(&mut self) {
         let mut flip_indices: Vec<(usize, usize)> = Vec::new();
-        for x in (0..self.edge_size-1) {
-            for y in (0..self.edge_size-1) {
+        for x in 0..self.edge_size-1 {
+            for y in 0..self.edge_size-1 {
                 if self.index_has_to_be_flipped(x,y) {
                     flip_indices.push((x,y));
                 }
             }
         }
-        flip_indices.iter().for_each(|(x,y)| { self.flip(*x,*y) });
+        flip_indices.iter().cloned().for_each(|(x,y)| { self.flip(x,y) });
     }
 }
 
