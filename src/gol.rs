@@ -51,7 +51,9 @@ impl Universe {
             self.flip(x,y);
         }
     }
+}
 
+impl Universe {
     pub fn build_universe(edge_size: usize) -> Universe {
         let cells = bitvec![Msb0, u16; 0; edge_size * edge_size];
         Universe { edge_size, cells }
