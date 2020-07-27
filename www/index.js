@@ -74,7 +74,7 @@ const render = async () => {
 let nextFrame = requestAnimationFrame(render);
 const startTicker = () => setInterval(
   () => { nextFrame = requestAnimationFrame(render);},
-  500
+  50
 );
 
 let ticks = startTicker();
