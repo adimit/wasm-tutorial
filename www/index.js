@@ -46,7 +46,7 @@ const drawCells = () => {
     const cellptr = Math.floor(index / bitsize);
     const bitptr = index % bitsize;
     const mask = 0x8000 >>> bitptr;
-    return (cells[cellptr] & mask) > 0
+    return (cells[cellptr] & mask) === mask;
   };
 
   for (let i = 0; i < width; i++) {
