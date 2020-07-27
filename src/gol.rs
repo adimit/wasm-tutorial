@@ -37,7 +37,7 @@ impl Universe {
         self.cells.as_ptr()
     }
 
-    pub fn index(&self, x: usize, y: usize) -> usize {
+    fn index(&self, x: usize, y: usize) -> usize {
         (self.edge_size * (y % self.edge_size)) + (x % self.edge_size)
     }
 
