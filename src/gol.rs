@@ -5,7 +5,7 @@ use bitvec::prelude::*;
 #[wasm_bindgen]
 pub struct Universe {
     edge_size: usize,
-    cells: BitVec
+    cells: BitVec<Lsb0, u8>
 }
 
 impl fmt::Display for Universe {
@@ -33,7 +33,7 @@ impl Universe {
         self.edge_size
     }
 
-    pub fn cells(&self) -> *const usize {
+    pub fn cells(&self) -> *const u8 {
         self.cells.as_ptr()
     }
 
@@ -103,7 +103,7 @@ impl Universe {
 
 
     pub fn build_universe(edge_size: usize) -> Universe {
-        let cells = bitvec![0; edge_size * edge_size];
+        let cells : BitVec<Lsb0, u8> = bitvec![Lsb0, u8; 0; edge_size * edge_size];
         Universe { edge_size, cells }
     }
 }
