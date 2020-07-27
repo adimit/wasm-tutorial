@@ -21,10 +21,6 @@ impl fmt::Display for Universe {
 
 #[wasm_bindgen]
 impl Universe {
-    pub fn render_as_string(&self) -> String {
-        self.to_string()
-    }
-
     pub fn width(&self) -> usize {
         self.edge_size
     }
@@ -37,13 +33,32 @@ impl Universe {
         self.cells.as_ptr()
     }
 
-    fn index(&self, x: usize, y: usize) -> usize {
-        (self.edge_size * (y % self.edge_size)) + (x % self.edge_size)
-    }
-
     pub fn flip(&mut self, x: usize, y: usize) {
         let index = self.index(x, y);
         self.flip_index(index);
+    }
+
+    pub fn tick(&mut self) {
+        let mut flip_indices: Vec<(usize, usize)> = Vec::new();
+        for x in 0..self.edge_size {
+            for y in 0..self.edge_size {
+                if self.index_has_to_be_flipped(x,y) {
+                    flip_indices.push((x,y));
+                }
+            }
+        }
+        for (x,y) in flip_indices {
+            self.flip(x,y);
+        }
+    }
+
+    pub fn build_universe(edge_size: usize) -> Universe {
+        let cells = bitvec![Msb0, u16; 0; edge_size * edge_size];
+        Universe { edge_size, cells }
+    }
+
+    fn index(&self, x: usize, y: usize) -> usize {
+        (self.edge_size * (y % self.edge_size)) + (x % self.edge_size)
     }
 
     fn flip_index(&mut self, index: usize) {
@@ -51,7 +66,7 @@ impl Universe {
         self.cells.set(index, !old);
     }
 
-    pub fn get(&self, x: usize, y: usize) -> bool {
+    fn get(&self, x: usize, y: usize) -> bool {
         self.cells[self.index(x, y)]
     }
 
@@ -85,26 +100,6 @@ impl Universe {
             (false, 3) => true,
             (false, _) => false
         }
-    }
-
-    pub fn tick(&mut self) {
-        let mut flip_indices: Vec<(usize, usize)> = Vec::new();
-        for x in 0..self.edge_size {
-            for y in 0..self.edge_size {
-                if self.index_has_to_be_flipped(x,y) {
-                    flip_indices.push((x,y));
-                }
-            }
-        }
-        for (x,y) in flip_indices {
-            self.flip(x,y);
-        }
-    }
-
-
-    pub fn build_universe(edge_size: usize) -> Universe {
-        let cells = bitvec![Msb0, u16; 0; edge_size * edge_size];
-        Universe { edge_size, cells }
     }
 }
 
