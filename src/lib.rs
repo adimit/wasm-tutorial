@@ -16,8 +16,8 @@ pub fn create_universe() -> gol::Universe {
     let mut universe = gol::Universe::build_universe(40);
     let mut rng = rand::thread_rng();
 
-    for x in 0..(universe.width()-1) {
-        for y in 0..(universe.height()-1) {
+    for x in 0..(universe.width()) {
+        for y in 0..(universe.height()) {
             if rng.gen() {universe.flip(x,y); }
         }
     }
