@@ -41,9 +41,6 @@ const drawGrid = () => {
 }
 
 const drawCells = () => {
-  const cellsPtr = universe.cells();
-  const cells = new Uint8Array(memory.buffer, cellsPtr, width * height);
-
   for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) {
       const cell = universe.get(i,j);
