@@ -12,7 +12,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
 pub fn create_universe() -> gol::Universe {
-    let mut universe = gol::Universe::build_universe(5);
+    let mut universe = gol::Universe::build_universe(6);
 
     universe.flip(0,2);
     universe.flip(1,2);

@@ -41,9 +41,20 @@ const drawGrid = () => {
 }
 
 const drawCells = () => {
+  const cellsPtr = universe.cells();
+  const cells = new Uint32Array(memory.buffer, cellsPtr, Math.ceil(width * height / 32));
+  const uint32 = cells[0]
+
+  const getCell = (index) => {
+    const cellptr = Math.floor(index / 32);
+    const bitptr = index % 32;
+    const mask = 0x80000000 >>> bitptr;
+    return (cells[cellptr] & mask) > 0
+  };
+
   for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) {
-      const cell = universe.get(i,j);
+      const cell = getCell(i + j * height); // universe.get(i,j);
       ctx.fillStyle = cell ? ALIVE_COLOR : DEAD_COLOR;
       ctx.fillRect(i * (CELL_SIZE + 1) + 1, j * (CELL_SIZE + 1) + 1, CELL_SIZE, CELL_SIZE);
     }
