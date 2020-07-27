@@ -16,6 +16,7 @@ canvas.width = (CELL_SIZE + 1) * width + 1;
 
 const ctx = canvas.getContext('2d');
 const toggle = document.getElementById("toggle-button");
+const step = document.getElementById("step-button");
 
 const drawGrid = () => {
   ctx.beginPath();
@@ -36,11 +37,10 @@ const drawGrid = () => {
   ctx.stroke();
 }
 
-const drawCells = () => {
-  const cellsPtr = universe.cells();
-  const cells = new Uint32Array(memory.buffer, cellsPtr, Math.ceil(width * height / 32));
-  const uint32 = cells[0]
+const cellsPtr = universe.cells();
+const cells = new Uint32Array(memory.buffer, cellsPtr, Math.ceil(width * height / 32));
 
+const drawCells = () => {
   const getCell = (index) => {
     const cellptr = Math.floor(index / 32);
     const bitptr = index % 32;
@@ -71,23 +71,35 @@ const render = async () => {
 let nextFrame = requestAnimationFrame(render);
 const startTicker = () => setInterval(
   () => { nextFrame = requestAnimationFrame(render);},
-  100
+  500
 );
 
 let ticks = startTicker();
-
-toggle.onclick = () => {
-  if (ticks) {
+const pause = () => {
     toggle.innerText = "▶";
     clearInterval(ticks);
     ticks = null;
     cancelAnimationFrame(nextFrame);
     nextFrame = null;
-  } else {
+};
+
+const play = () => {
     toggle.innerText = "⏸";
     ticks = startTicker();
+}
+
+toggle.onclick = () => {
+  if (ticks) {
+    pause();
+  } else {
+    play();
   }
 };
 
-console.log(toggle);
-console.log(ticks);
+step.onclick = () => {
+  if (ticks) {
+    pause();
+  } else {
+    requestAnimationFrame(render);
+  }
+}
