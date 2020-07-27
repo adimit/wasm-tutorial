@@ -38,13 +38,14 @@ const drawGrid = () => {
 }
 
 const cellsPtr = universe.cells();
-const cells = new Uint32Array(memory.buffer, cellsPtr, Math.ceil(width * height / 32));
+const bitsize = 16;
+const cells = new Uint16Array(memory.buffer, cellsPtr, Math.ceil(width * height / bitsize));
 
 const drawCells = () => {
   const getCell = (index) => {
-    const cellptr = Math.floor(index / 32);
-    const bitptr = index % 32;
-    const mask = 0x80000000 >>> bitptr;
+    const cellptr = Math.floor(index / bitsize);
+    const bitptr = index % bitsize;
+    const mask = 0x8000 >>> bitptr;
     return (cells[cellptr] & mask) > 0
   };
 
@@ -65,6 +66,7 @@ counter.innerText = iterations;
 const render = async () => {
   drawCells();
   counter.innerText = iterations++;
+  // console.log(cells.reduce((acc, cell) => [...acc, cell.toString(2).padStart(bitsize, "0")], []).join(", "));
   universe.tick();
 };
 
