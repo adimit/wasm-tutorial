@@ -39,14 +39,15 @@ const drawGrid = () => {
 
 const cellsPtr = universe.cells();
 const bitsize = 16;
+const bitmask = 0x8000;
 const cells = new Uint16Array(memory.buffer, cellsPtr, Math.ceil(width * height / bitsize));
 
 const drawCells = () => {
   const getCell = (index) => {
     const cellptr = Math.floor(index / bitsize);
     const bitptr = index % bitsize;
-    const mask = 0x8000 >>> bitptr;
-    return (cells[cellptr] & mask) === mask;
+    const n = bitmask >>> bitptr;
+    return (cells[cellptr] & n) === n;
   };
 
   for (let i = 0; i < width; i++) {
