@@ -1,33 +1,17 @@
 use std::fmt;
 use wasm_bindgen::prelude::*;
-
-#[wasm_bindgen]
-#[repr(u8)]
-#[derive(Clone, Debug, PartialEq, Copy, Eq)]
-pub enum CellState {
-    DEAD = 0,
-    ALIVE = 1
-}
-
-impl CellState {
-    fn flip(&self) -> CellState {
-        match self {
-            CellState::ALIVE => CellState::DEAD,
-            CellState::DEAD => CellState::ALIVE
-        }
-    }
-}
+use bitvec::prelude::*;
 
 #[wasm_bindgen]
 pub struct Universe {
     edge_size: usize,
-    cells: Vec<CellState>
+    cells: BitVec
 }
 
 impl fmt::Display for Universe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (pos, cell) in self.cells.iter().enumerate() {
-            let c = if *cell == CellState::ALIVE { "█" } else { "░" };
+            let c = if *cell { "█" } else { "░" };
             let newline = if pos % self.edge_size == self.edge_size - 1 { "\n" } else { "" };
             write!(f, "{}{}", c, newline)?;
         }
@@ -49,7 +33,7 @@ impl Universe {
         self.edge_size
     }
 
-    pub fn cells(&self) -> *const CellState {
+    pub fn cells(&self) -> *const usize {
         self.cells.as_ptr()
     }
 
@@ -63,10 +47,11 @@ impl Universe {
     }
 
     fn flip_index(&mut self, index: usize) {
-        self.cells[index] = self.cells[index].flip();
+        let old = self.cells[index];
+        self.cells.set(index, !old);
     }
 
-    pub fn get(&self, x: usize, y: usize) -> CellState {
+    pub fn get(&self, x: usize, y: usize) -> bool {
         self.cells[self.index(x, y)]
     }
 
@@ -94,11 +79,11 @@ impl Universe {
     fn index_has_to_be_flipped(&self, x: usize, y: usize) -> bool {
         let live_neighbours = self.get_amount_of_live_neighbours(x, y);
         match (self.get(x,y), live_neighbours) {
-            (CellState::ALIVE, 2) => false,
-            (CellState::ALIVE, 3) => false,
-            (CellState::ALIVE, _) => true,
-            (CellState::DEAD, 3) => true,
-            (CellState::DEAD, _) => false
+            (true, 2) => false,
+            (true, 3) => false,
+            (true, _) => true,
+            (false, 3) => true,
+            (false, _) => false
         }
     }
 
@@ -118,7 +103,7 @@ impl Universe {
 
 
     pub fn build_universe(edge_size: usize) -> Universe {
-        let cells: Vec<CellState> = vec![CellState::DEAD; edge_size * edge_size];
+        let cells = bitvec![0; edge_size * edge_size];
         Universe { edge_size, cells }
     }
 }
@@ -158,14 +143,14 @@ fn build_universe_has_correct_size() {
 fn get_with_large_index_wraps() {
     let mut universe = Universe::build_universe(4);
     universe.flip(4, 4);
-    assert_eq!(universe.get(0, 0), CellState::ALIVE);
+    assert_eq!(universe.get(0, 0), true);
 }
 
 #[test]
 fn universe_can_flip_cell() {
     let mut universe = Universe::build_universe(2);
     universe.flip(0, 1);
-    assert_eq!(universe.get(0, 1), CellState::ALIVE);
+    assert_eq!(universe.get(0, 1), true);
 }
 
 #[test]
@@ -173,7 +158,7 @@ fn lone_cell_dies_in_one_tick() {
     let mut universe = Universe::build_universe(3);
     universe.flip(1,1);
     universe.tick();
-    assert_eq!(universe.get(1,1), CellState::DEAD);
+    assert_eq!(universe.get(1,1), false);
 }
 
 #[test]
@@ -189,11 +174,11 @@ fn blocks_are_stable() {
     universe.tick();
     universe.tick();
 
-    assert_eq!(universe.get(0,0), CellState::ALIVE);
-    assert_eq!(universe.get(1,1), CellState::ALIVE);
-    assert_eq!(universe.get(1,0), CellState::ALIVE);
-    assert_eq!(universe.get(0,1), CellState::ALIVE);
-    assert_eq!(universe.cells.iter().filter(|cell| { **cell == CellState::ALIVE }).count(), 4);
+    assert_eq!(universe.get(0,0), true);
+    assert_eq!(universe.get(1,1), true);
+    assert_eq!(universe.get(1,0), true);
+    assert_eq!(universe.get(0,1), true);
+    assert_eq!(universe.cells.iter().filter(|cell| { **cell == true }).count(), 4);
 }
 
 #[test]
@@ -206,15 +191,15 @@ fn blinkers_are_stable() {
 
     universe.tick();
 
-    assert_eq!(universe.get(0,2), CellState::ALIVE);
-    assert_eq!(universe.get(1,2), CellState::ALIVE);
-    assert_eq!(universe.get(2,2), CellState::ALIVE);
+    assert_eq!(universe.get(0,2), true);
+    assert_eq!(universe.get(1,2), true);
+    assert_eq!(universe.get(2,2), true);
 
     universe.tick();
 
-    assert_eq!(universe.get(1,1), CellState::ALIVE);
-    assert_eq!(universe.get(1,2), CellState::ALIVE);
-    assert_eq!(universe.get(1,3), CellState::ALIVE);
+    assert_eq!(universe.get(1,1), true);
+    assert_eq!(universe.get(1,2), true);
+    assert_eq!(universe.get(1,3), true);
 }
 
 #[test]
@@ -232,9 +217,9 @@ fn gliders_wrap() {
         println!("{}{}", universe.to_string(), x);
     });
 
-    assert_eq!(universe.get(0,2), CellState::ALIVE);
-    assert_eq!(universe.get(1,2), CellState::ALIVE);
-    assert_eq!(universe.get(2,2), CellState::ALIVE);
-    assert_eq!(universe.get(2,1), CellState::ALIVE);
-    assert_eq!(universe.get(1,0), CellState::ALIVE);
+    assert_eq!(universe.get(0,2), true);
+    assert_eq!(universe.get(1,2), true);
+    assert_eq!(universe.get(2,2), true);
+    assert_eq!(universe.get(2,1), true);
+    assert_eq!(universe.get(1,0), true);
 }
