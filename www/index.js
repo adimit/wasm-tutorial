@@ -15,11 +15,7 @@ canvas.height = (CELL_SIZE + 1) * height + 1;
 canvas.width = (CELL_SIZE + 1) * width + 1;
 
 const ctx = canvas.getContext('2d');
-
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+const toggle = document.getElementById("toggle-button");
 
 const drawGrid = () => {
   ctx.beginPath();
@@ -66,13 +62,32 @@ drawCells();
 let iterations = 0;
 counter.innerText = iterations;
 
-const renderLoop = async () => {
+const render = async () => {
   drawCells();
-  universe.tick();
   counter.innerText = iterations++;
-
-  await sleep(500);
-  requestAnimationFrame(renderLoop);
+  universe.tick();
 };
 
-requestAnimationFrame(renderLoop);
+let nextFrame = requestAnimationFrame(render);
+const startTicker = () => setInterval(
+  () => { nextFrame = requestAnimationFrame(render);},
+  100
+);
+
+let ticks = startTicker();
+
+toggle.onclick = () => {
+  if (ticks) {
+    toggle.innerText = "▶";
+    clearInterval(ticks);
+    ticks = null;
+    cancelAnimationFrame(nextFrame);
+    nextFrame = null;
+  } else {
+    toggle.innerText = "⏸";
+    ticks = startTicker();
+  }
+};
+
+console.log(toggle);
+console.log(ticks);
