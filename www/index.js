@@ -11,6 +11,7 @@ const width = universe.width();
 const height = universe.height();
 const canvas = document.getElementById("game-of-life-canvas");
 const counter = document.getElementById("counter");
+const updateInterval = document.getElementById("update-interval");
 canvas.height = (CELL_SIZE + 1) * height + 1;
 canvas.width = (CELL_SIZE + 1) * width + 1;
 
@@ -42,6 +43,7 @@ const bitsize = 16;
 const bitmask = 0x8000;
 const cells = new Uint16Array(memory.buffer, cellsPtr, Math.ceil(width * height / bitsize));
 
+const drawCell = (x,y) => ctx.fillRect(x * (CELL_SIZE + 1) + 1, y * (CELL_SIZE + 1) + 1, CELL_SIZE, CELL_SIZE);
 const drawCells = () => {
   const getCell = (index) => {
     const cellptr = Math.floor(index / bitsize);
@@ -50,59 +52,102 @@ const drawCells = () => {
     return (cells[cellptr] & n) === n;
   };
 
-  for (let i = 0; i < width; i++) {
-    for (let j = 0; j < height; j++) {
-      const cell = getCell(i + j * height); // universe.get(i,j);
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
+      const cell = getCell(x + y * height); // universe.get(x,y);
       ctx.fillStyle = cell ? ALIVE_COLOR : DEAD_COLOR;
-      ctx.fillRect(i * (CELL_SIZE + 1) + 1, j * (CELL_SIZE + 1) + 1, CELL_SIZE, CELL_SIZE);
+      drawCell(x,y);
     }
   }
 }
+
+const getMouseCoordinates = (event) => {
+  const boundingRect = canvas.getBoundingClientRect();
+
+  const scaleX = canvas.width / boundingRect.width;
+  const scaleY = canvas.height / boundingRect.height;
+
+  const canvasLeft = (event.clientX - boundingRect.left) * scaleX;
+  const canvasTop = (event.clientY - boundingRect.top) * scaleY;
+
+  const y = Math.min(Math.floor(canvasTop / (CELL_SIZE + 1)), height - 1);
+  const x = Math.min(Math.floor(canvasLeft / (CELL_SIZE + 1)), width - 1);
+  return [x,y];
+}
+
+canvas.onpointermove = event => {
+  const [x,y] = getMouseCoordinates(event);
+  drawCells();
+  ctx.fillStyle = "#2222FFAA";
+  drawCell(x,y);
+}
+
+canvas.onclick = event => {
+  const [x,y] = getMouseCoordinates(event);
+
+  universe.flip(x, y);
+
+  drawCells();
+};
 
 drawGrid();
 drawCells();
 let iterations = 0;
 counter.innerText = iterations;
 
-const render = async () => {
-  drawCells();
-  counter.innerText = iterations++;
-  // console.log(cells.reduce((acc, cell) => [...acc, cell.toString(2).padStart(bitsize, "0")], []).join(", "));
-  universe.tick();
+const getAnimationInterval = () => Math.pow(2, updateInterval.valueAsNumber);
+
+const render = () => {
+    universe.tick();
+    drawCells();
+    counter.innerText = iterations++;
+    // console.log(cells.reduce((acc, cell) => [...acc, cell.toString(2).padStart(bitsize, "0")], []).join(", "));
 };
 
-let nextFrame = requestAnimationFrame(render);
-const startTicker = () => setInterval(
-  () => { nextFrame = requestAnimationFrame(render);},
-  50
-);
+let state;
+let timeout = null;
 
-let ticks = startTicker();
+const renderLoop = async () => {
+  if (state === 'running') {
+    timeout = setTimeout(() => {
+      requestAnimationFrame(renderLoop);
+      render();
+    }, getAnimationInterval());
+  } else {
+    clearTimeout(timeout);
+    timeout = null;
+  }
+};
+
 const pause = () => {
-    toggle.innerText = "▶";
-    clearInterval(ticks);
-    ticks = null;
-    cancelAnimationFrame(nextFrame);
-    nextFrame = null;
+  state = 'paused';
+  toggle.innerText = "▶";
+  clearTimeout(timeout);
+  timeout = null;
 };
 
-const play = () => {
-    toggle.innerText = "⏸";
-    ticks = startTicker();
-}
+const start = () => {
+  state = 'running';
+  toggle.innerText = "⏸";
+  if (timeout === null) {
+    requestAnimationFrame(renderLoop);
+  }
+};
 
 toggle.onclick = () => {
-  if (ticks) {
+  if (state === 'running') {
     pause();
   } else {
-    play();
+    start();
   }
 };
 
 step.onclick = () => {
-  if (ticks) {
+  if (state === 'running') {
     pause();
   } else {
     requestAnimationFrame(render);
   }
 }
+
+start();
