@@ -12,8 +12,8 @@ use rand::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub fn create_universe() -> gol::Universe {
-    let mut universe = gol::Universe::build_universe(40);
+pub fn create_random_universe() -> gol::Universe {
+    let mut universe = create_empty_universe();
     let mut rng = rand::thread_rng();
 
     for x in 0..(universe.width()) {
@@ -23,4 +23,9 @@ pub fn create_universe() -> gol::Universe {
     }
 
     universe
+}
+
+#[wasm_bindgen]
+pub fn create_empty_universe() -> gol::Universe {
+    gol::Universe::build_universe(40)
 }
