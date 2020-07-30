@@ -2,8 +2,8 @@ pub mod utils;
 
 mod gol;
 
-use wasm_bindgen::prelude::*;
 use rand::prelude::*;
+use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -18,7 +18,9 @@ pub fn create_random_universe() -> gol::Universe {
 
     for x in 0..(universe.width()) {
         for y in 0..(universe.height()) {
-            if rng.gen() {universe.flip(x,y); }
+            if rng.gen() {
+                universe.flip(x, y);
+            }
         }
     }
 
